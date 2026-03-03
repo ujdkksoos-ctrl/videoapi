@@ -11,7 +11,7 @@ async def get_video_info(url: str):
         'quiet': True,
         'no_warnings': True,
         'skip_download': True,
-        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
     }
 
     try:
@@ -108,4 +108,5 @@ async def get_video_info(url: str):
         raise HTTPException(status_code=400, detail=str(e))
 
 if __name__ == "__main__":
+
     uvicorn.run(app, host="0.0.0.0", port=8080)
