@@ -1,0 +1,9 @@
+.facebook.com	TRUE	/	TRUE	1773153326	wd	1920x945
+.facebook.com	TRUE	/	FALSE	0	datr	BWviaNOCtN9lSil2CzLHh0vx
+.facebook.com	TRUE	/	FALSE	0	xs	36:oQdrOxiLjW_EZQ:2:1759668998:-1:-1
+.facebook.com	TRUE	/	FALSE	0	c_user	61572081986405
+.facebook.com	TRUE	/	FALSE	0	sb	btLkaATBU0dtRjOMmfvjY5Ap
+.facebook.com	TRUE	/	TRUE	1807107483	ps_l	1
+.facebook.com	TRUE	/	TRUE	1807107483	ps_n	1
+.facebook.com	TRUE	/	TRUE	1780324524	fr	0NgvCjjBbeQsxe8vI.AWdVP_xeh5KHGytdMSLAOiLHroHlvhatG9oL-gvayu6VM3cbqaM.BpBg6D..AAA.0.0.BppvGr.AWfJ_Sc4IXCJQLl4WV7GQD32-ls
+.facebook.com	TRUE	/	TRUE	0	presence	C%7B%22t3%22%3A%5B%5D%2C%22utc3%22%3A1772548526281%2C%22v%22%3A1%7D
