@@ -65,6 +65,7 @@ def fetch_yt_data(url):
         'format': 'bestvideo+bestaudio/best', # ইউটিউব এরর ফিক্স করার লজিক
     }
 
+    # কুকি ফাইলের নাম থাকলে সেটি যুক্ত করা
     if cookie_file:
         ydl_opts['cookiefile'] = cookie_file
 
@@ -74,6 +75,7 @@ def fetch_yt_data(url):
 @app.get("/get_video")
 async def get_video_info(url: str):
     try:
+        # মেইন থ্রেড ব্লক না করে ডাটা ফেচ করা
         info = await asyncio.to_thread(fetch_yt_data, url)
         
         if not info:
@@ -100,9 +102,11 @@ async def get_video_info(url: str):
             has_video = vcodec != 'none' or width is not None or height is not None or 'x' in resolution_str
             has_audio = acodec != 'none'
             
+            # প্রোগ্রেসিভ ভিডিওর জন্য চেক
             if format_id in ['hd', 'sd'] or 'progressive' in direct_url.lower():
                 has_video, has_audio = True, True
 
+            # টাইপ নির্ধারণ করা
             if has_video and has_audio:
                 f_type = "Video + Audio"
             elif has_video:
@@ -112,12 +116,14 @@ async def get_video_info(url: str):
             else:
                 f_type = "Unknown Type"
 
+            # রেজোলিউশন নির্ধারণ
             if f_type == "Audio Only":
                 res = "Audio Only"
             else:
                 if width and height: res = f"{width}x{height}"
                 else: res = resolution_str if resolution_str != 'none' else "Unknown"
 
+            # সাইজ ক্যালকুলেশন
             raw_size = f.get('filesize') or f.get('filesize_approx')
             
             if not raw_size and duration and f.get('tbr'):
