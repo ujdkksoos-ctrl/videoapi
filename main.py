@@ -42,7 +42,7 @@ def fetch_yt_data(url):
     # ৩. ইউটিউবের জন্য হেডার এবং কুকি
     else:
         target_user_agent = 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Mobile Safari/537.36'
-        cookie_file = 'youtube_cookies.txt' # ইউটিউবের কুকি ফাইলের নাম
+        cookie_file = 'youtube_cookies.txt' 
         target_headers = {
             'authority': 'm.youtube.com',
             'accept': 'text/css,*/*;q=0.1',
@@ -62,9 +62,9 @@ def fetch_yt_data(url):
         'http_headers': target_headers,
         'nocheckcertificate': True,
         'ignoreerrors': True,
+        'format': 'bestvideo+bestaudio/best', # ইউটিউব এরর ফিক্স করার লজিক
     }
 
-    # লিংক অনুযায়ী ডাইনামিক কুকি ফাইল সেট করা
     if cookie_file:
         ydl_opts['cookiefile'] = cookie_file
 
@@ -100,7 +100,6 @@ async def get_video_info(url: str):
             has_video = vcodec != 'none' or width is not None or height is not None or 'x' in resolution_str
             has_audio = acodec != 'none'
             
-            # Smart detection for regular formats
             if format_id in ['hd', 'sd'] or 'progressive' in direct_url.lower():
                 has_video, has_audio = True, True
 
@@ -119,7 +118,6 @@ async def get_video_info(url: str):
                 if width and height: res = f"{width}x{height}"
                 else: res = resolution_str if resolution_str != 'none' else "Unknown"
 
-            # উন্নত সাইজ ক্যালকুলেশন লজিক
             raw_size = f.get('filesize') or f.get('filesize_approx')
             
             if not raw_size and duration and f.get('tbr'):
@@ -127,7 +125,6 @@ async def get_video_info(url: str):
                 
             if not raw_size and direct_url:
                 try:
-                    # ৫ সেকেন্ড টাইমআউট দিয়ে সাইজ রিকোয়েস্ট করা
                     head_req = requests.head(direct_url, allow_redirects=True, timeout=5)
                     if 'Content-Length' in head_req.headers:
                         raw_size = int(head_req.headers['Content-Length'])
