@@ -9,9 +9,12 @@ app = FastAPI()
 def fetch_yt_data(url):
     target_headers = {}
     target_user_agent = ""
+    cookie_file = ""
 
+    # ১. ফেসবুকের জন্য রিয়েল মোবাইল হেডার ও কুকি
     if "facebook.com" in url or "fb.watch" in url:
         target_user_agent = 'Mozilla/5.0 (Linux; Android 14; Pixel 6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Mobile Safari/537.36'
+        cookie_file = 'fb_cookis.txt'  # আপনার গিটহাবের ফাইলের নাম
         target_headers = {
             'authority': 'm.facebook.com',
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
@@ -29,8 +32,10 @@ def fetch_yt_data(url):
             'upgrade-insecure-requests': '1',
             'viewport-width': '980',
         }
+    # ২. ইনস্টাগ্রামের জন্য রিয়েল মোবাইল হেডার ও কুকি
     elif "instagram.com" in url:
         target_user_agent = 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Mobile Safari/537.36'
+        cookie_file = 'cookies_insta.txt'  # আপনার গিটহাবের ফাইলের নাম
         target_headers = {
             'authority': 'www.instagram.com',
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
@@ -50,6 +55,7 @@ def fetch_yt_data(url):
             'viewport-width': '383',
             'referer': 'https://www.google.com/',
         }
+    # ৩. ইউটিউবের জন্য রিয়েল মোবাইল হেডার
     else:
         target_user_agent = 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Mobile Safari/537.36'
         target_headers = {
@@ -78,8 +84,11 @@ def fetch_yt_data(url):
         'http_headers': target_headers,
         'nocheckcertificate': True,
         'ignoreerrors': True,
-        'cookiefile': 'cookies.txt',  # <-- ম্যাজিক লাইন: গিটহাব থেকে কুকি পড়বে
     }
+
+    # শুধুমাত্র যদি কুকি ফাইলের নাম থাকে, তবেই সেটি অপশনে যুক্ত হবে
+    if cookie_file:
+        ydl_opts['cookiefile'] = cookie_file
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         return ydl.extract_info(url, download=False)
