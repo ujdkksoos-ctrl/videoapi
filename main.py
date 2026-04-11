@@ -105,7 +105,7 @@ def cleanup_files(*file_paths):
             pass
 
 @app.get("/merge")
-async def merge_audio_video(video_url: str, audio_url: str, background_tasks: BackgroundTasks):
+async def merge_audio_video(video_url: str, audio_url: str, background_tasks: BackgroundTasks, title: str = "video"):
     task_id = str(uuid.uuid4())
     video_path = f"/tmp/{task_id}_video.mp4"
     audio_path = f"/tmp/{task_id}_audio.m4a"
@@ -147,10 +147,15 @@ async def merge_audio_video(video_url: str, audio_url: str, background_tasks: Ba
         # ফাইলগুলো ডিলিট করার জন্য BackgroundTask সেট করা
         background_tasks.add_task(cleanup_files, video_path, audio_path, output_path)
 
+        safe_title = "".join([c for c in title if c.isalpha() or c.isdigit() or c in (' ', '-', '_')]).rstrip()
+        if not safe_title:
+            safe_title = "video"
+        download_filename = f"{safe_title} rakib xd.mp4"
+
         return FileResponse(
             path=output_path,
             media_type="video/mp4",
-            filename="merged_video.mp4",
+            filename=download_filename,
             background=background_tasks
         )
 
@@ -169,6 +174,7 @@ async def get_video_info(request: Request, url: str):
 
         formats = info.get('formats', [])
         duration = info.get('duration') 
+        video_title = info.get('title', 'video')
         available_formats = []
 
         # Find best audio direct URL for muxing
@@ -245,7 +251,8 @@ async def get_video_info(request: Request, url: str):
             }
 
             if f_type == "Video Only (No Sound)" and best_audio_url:
-                merge_url = f"{base_url}merge?video_url={quote(direct_url)}&audio_url={quote(best_audio_url)}"
+                title_param = quote(video_title)
+                merge_url = f"{base_url}merge?video_url={quote(direct_url)}&audio_url={quote(best_audio_url)}&title={title_param}"
                 item_data["merge_url"] = merge_url
 
             available_formats.append(item_data)
