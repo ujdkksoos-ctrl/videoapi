@@ -8,6 +8,13 @@ import os
 import uuid
 from urllib.parse import quote
 
+# ---------------------------------------------------------
+# Render-এর জন্য Deno পাথ সেট আপ করা হচ্ছে (যাতে yt-dlp জাভাস্ক্রিপ্ট রান করতে পারে)
+deno_path = os.path.expanduser("~/.deno/bin")
+if deno_path not in os.environ.get("PATH", ""):
+    os.environ["PATH"] = f"{deno_path}:{os.environ.get('PATH', '')}"
+# ---------------------------------------------------------
+
 app = FastAPI()
 
 # --- এই নতুন রুটটি UptimeRobot-এর জন্য যোগ করা হয়েছে ---
