@@ -64,7 +64,7 @@ def fetch_yt_data(url):
         'skip_download': True,
         'noplaylist': True,
         'nocheckcertificate': True,
-        'ignoreerrors': True,
+        'ignoreerrors': False,
         'format': 'all',
     }
 
