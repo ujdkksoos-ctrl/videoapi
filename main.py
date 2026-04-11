@@ -70,20 +70,9 @@ def fetch_yt_data(url):
             'sec-fetch-mode': 'navigate',
             'sec-fetch-site': 'same-origin',
         }
-    # ৩. ইউটিউবের জন্য (Fallback Logic)
+    # ৩. ইউটিউবের জন্য
     else:
         ydl_opts['proxy'] = 'http://XmSj6VQnDl70_custom_zone_MY_st__city_sid_61400871_time_5:2773363@change4.owlproxy.com:7778'
-        
-        # প্রথমে কুকি ছাড়া ট্রাই করব যাতে SABR ব্লক এড়ানো যায়
-        try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=False)
-                # যদি ডাটা পায় এবং অন্তত একটি ভিডিও/অডিও ফরম্যাট থাকে
-                if info and len(info.get('formats', [])) > 0:
-                    return info
-        except Exception:
-            pass # কুকি ছাড়া ব্যর্থ হলে নিচের ব্লকে কুকি ব্যবহার করবে
-            
         cookie_file = 'youtube_cookies.txt'
 
     if target_user_agent:
