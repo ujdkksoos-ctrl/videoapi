@@ -20,9 +20,19 @@ def read_root():
 # ---------------------------------------------------------
 
 def fetch_yt_data(url):
-    target_headers = {}
-    target_user_agent = ""
-    cookie_file = ""
+    target_headers = None
+    target_user_agent = None
+    cookie_file = None
+
+    ydl_opts = {
+        'quiet': True,
+        'no_warnings': True,
+        'skip_download': True,
+        'noplaylist': True,
+        'nocheckcertificate': True,
+        'ignoreerrors': False,
+        'format': 'all',
+    }
 
     # ১. ফেসবুকের জন্য হেডার এবং কুকি
     if "facebook.com" in url or "fb.watch" in url:
@@ -52,21 +62,19 @@ def fetch_yt_data(url):
             'sec-fetch-mode': 'navigate',
             'sec-fetch-site': 'same-origin',
         }
-    # ৩. ইউটিউবের জন্য হেডার এবং কুকি
+    # ৩. ইউটিউবের জন্য (Fallback Logic)
     else:
-        target_user_agent = None
-        target_headers = None
-        cookie_file = 'youtube_cookies.txt' 
-
-    ydl_opts = {
-        'quiet': True,
-        'no_warnings': True,
-        'skip_download': True,
-        'noplaylist': True,
-        'nocheckcertificate': True,
-        'ignoreerrors': False,
-        'format': 'all',
-    }
+        # প্রথমে কুকি ছাড়া ট্রাই করব যাতে SABR ব্লক এড়ানো যায়
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(url, download=False)
+                # যদি ডাটা পায় এবং অন্তত একটি ভিডিও/অডিও ফরম্যাট থাকে
+                if info and len(info.get('formats', [])) > 0:
+                    return info
+        except Exception:
+            pass # কুকি ছাড়া ব্যর্থ হলে নিচের ব্লকে কুকি ব্যবহার করবে
+            
+        cookie_file = 'youtube_cookies.txt'
 
     if target_user_agent:
         ydl_opts['user_agent'] = target_user_agent
