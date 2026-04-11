@@ -79,8 +79,12 @@ def fetch_yt_data(url):
         return ydl.extract_info(url, download=False)
 
 def download_sync(url: str, dest: str):
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': '*/*'
+    }
     # stream=True ব্যবহার করা হচ্ছে যেন পুরো ফাইল RAM-এ লোড না হয়
-    with requests.get(url, stream=True, timeout=30) as r:
+    with requests.get(url, headers=headers, stream=True, timeout=30) as r:
         r.raise_for_status()
         with open(dest, 'wb') as f:
             for chunk in r.iter_content(chunk_size=1024*1024):
