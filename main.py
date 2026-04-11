@@ -6,6 +6,15 @@ import asyncio
 
 app = FastAPI()
 
+# --- এই নতুন রুটটি UptimeRobot-এর জন্য যোগ করা হয়েছে ---
+@app.get("/")
+def read_root():
+    return {
+        "status": "Alive and kicking!", 
+        "message": "API is running successfully. Use /get_video?url=YOUR_URL to fetch video data."
+    }
+# ---------------------------------------------------------
+
 def fetch_yt_data(url):
     target_headers = {}
     target_user_agent = ""
