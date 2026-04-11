@@ -1,8 +1,12 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
+from fastapi.responses import FileResponse
 import yt_dlp
 import uvicorn
 import requests
 import asyncio
+import os
+import uuid
+from urllib.parse import quote
 
 app = FastAPI()
 
@@ -74,25 +78,112 @@ def fetch_yt_data(url):
         'format': 'bestvideo+bestaudio/best', # ইউটিউব এরর ফিক্স করার লজিক
     }
 
-    # কুকি ফাইলের নাম থাকলে সেটি যুক্ত করা
     if cookie_file:
         ydl_opts['cookiefile'] = cookie_file
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         return ydl.extract_info(url, download=False)
 
-@app.get("/get_video")
-async def get_video_info(url: str):
+def download_sync(url: str, dest: str):
+    # stream=True ব্যবহার করা হচ্ছে যেন পুরো ফাইল RAM-এ লোড না হয়
+    with requests.get(url, stream=True, timeout=30) as r:
+        r.raise_for_status()
+        with open(dest, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=1024*1024):
+                if chunk:
+                    f.write(chunk)
+
+async def download_async(url: str, dest: str):
+    await asyncio.to_thread(download_sync, url, dest)
+
+def cleanup_files(*file_paths):
+    for path in file_paths:
+        try:
+            if os.path.exists(path):
+                os.remove(path)
+        except Exception:
+            pass
+
+@app.get("/merge")
+async def merge_audio_video(video_url: str, audio_url: str, background_tasks: BackgroundTasks):
+    task_id = str(uuid.uuid4())
+    video_path = f"/tmp/{task_id}_video.mp4"
+    audio_path = f"/tmp/{task_id}_audio.m4a"
+    output_path = f"/tmp/{task_id}_output.mp4"
+
     try:
-        # মেইন থ্রেড ব্লক না করে ডাটা ফেচ করা
+        # ফাইলগুলো সার্ভারের হার্ডডিস্কে /tmp ফোল্ডারে সেভ করা হচ্ছে
+        await asyncio.gather(
+            download_async(video_url, video_path),
+            download_async(audio_url, audio_path)
+        )
+
+        # -c copy ব্যবহার করে প্রসেস করা ফলে CPU এবং RAM-এ চাপ পড়বে না
+        cmd = [
+            "ffmpeg", "-y", 
+            "-i", video_path, 
+            "-i", audio_path,
+            "-c:v", "copy", 
+            "-c:a", "copy", 
+            "-map", "0:v:0", 
+            "-map", "1:a:0?",
+            "-shortest", 
+            output_path
+        ]
+        
+        proc = await asyncio.create_subprocess_exec(
+            *cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        _, stderr = await proc.communicate()
+        
+        if proc.returncode != 0:
+            raise HTTPException(status_code=500, detail=f"Merge failed: {stderr.decode()}")
+            
+        if not os.path.exists(output_path):
+            raise HTTPException(status_code=500, detail="Output file not generated")
+
+        # ফাইলগুলো ডিলিট করার জন্য BackgroundTask সেট করা
+        background_tasks.add_task(cleanup_files, video_path, audio_path, output_path)
+
+        return FileResponse(
+            path=output_path,
+            media_type="video/mp4",
+            filename="merged_video.mp4",
+            background=background_tasks
+        )
+
+    except Exception as e:
+        cleanup_files(video_path, audio_path, output_path)
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/get_video")
+async def get_video_info(request: Request, url: str):
+    try:
+        base_url = str(request.base_url)
         info = await asyncio.to_thread(fetch_yt_data, url)
         
         if not info:
-            raise HTTPException(status_code=400, detail="Could not fetch data. Cookies might be expired or invalid.")
+            raise HTTPException(status_code=400, detail="Could not fetch data.")
 
         formats = info.get('formats', [])
         duration = info.get('duration') 
         available_formats = []
+
+        # Find best audio direct URL for muxing
+        best_audio_url = ""
+        for f in reversed(formats):
+            if f.get('acodec') != 'none' and f.get('vcodec') in ['none', None]:
+                best_audio_url = f.get('url', '')
+                break
+        
+        # Fallback if specific audio-only format is not found
+        if not best_audio_url:
+            for f in reversed(formats):
+                if f.get('acodec') != 'none':
+                    best_audio_url = f.get('url', '')
+                    break
 
         for f in formats:
             ext = f.get('ext', 'N/A')
@@ -111,11 +202,9 @@ async def get_video_info(url: str):
             has_video = vcodec != 'none' or width is not None or height is not None or 'x' in resolution_str
             has_audio = acodec != 'none'
             
-            # প্রোগ্রেসিভ ভিডিওর জন্য চেক
             if format_id in ['hd', 'sd'] or 'progressive' in direct_url.lower():
                 has_video, has_audio = True, True
 
-            # টাইপ নির্ধারণ করা
             if has_video and has_audio:
                 f_type = "Video + Audio"
             elif has_video:
@@ -125,14 +214,12 @@ async def get_video_info(url: str):
             else:
                 f_type = "Unknown Type"
 
-            # রেজোলিউশন নির্ধারণ
             if f_type == "Audio Only":
                 res = "Audio Only"
             else:
                 if width and height: res = f"{width}x{height}"
                 else: res = resolution_str if resolution_str != 'none' else "Unknown"
 
-            # সাইজ ক্যালকুলেশন
             raw_size = f.get('filesize') or f.get('filesize_approx')
             
             if not raw_size and duration and f.get('tbr'):
@@ -148,14 +235,20 @@ async def get_video_info(url: str):
             
             size_str = f"{float(raw_size)/(1024*1024):.2f} MB" if raw_size and raw_size > 0 else "Unknown"
 
-            available_formats.append({
+            item_data = {
                 "format_id": f.get('format_id', 'N/A'),
                 "format_type": f_type,
                 "resolution": res,
                 "extension": ext,
                 "size": size_str,
                 "direct_url": direct_url
-            })
+            }
+
+            if f_type == "Video Only (No Sound)" and best_audio_url:
+                merge_url = f"{base_url}merge?video_url={quote(direct_url)}&audio_url={quote(best_audio_url)}"
+                item_data["merge_url"] = merge_url
+
+            available_formats.append(item_data)
 
         available_formats.reverse()
         for index, item in enumerate(available_formats):
