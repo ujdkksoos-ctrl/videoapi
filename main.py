@@ -32,6 +32,7 @@ def fetch_yt_data(url):
         'nocheckcertificate': True,
         'ignoreerrors': False,
         'format': 'all',
+        'js_runtimes': {'node': {}, 'deno': {}},
     }
 
     # ১. ফেসবুকের জন্য হেডার এবং কুকি
