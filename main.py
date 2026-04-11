@@ -54,30 +54,24 @@ def fetch_yt_data(url):
         }
     # ৩. ইউটিউবের জন্য হেডার এবং কুকি
     else:
-        target_user_agent = 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Mobile Safari/537.36'
+        target_user_agent = None
+        target_headers = None
         cookie_file = 'youtube_cookies.txt' 
-        target_headers = {
-            'authority': 'm.youtube.com',
-            'accept': 'text/css,*/*;q=0.1',
-            'accept-language': 'en-US,en;q=0.9',
-            'sec-ch-ua-mobile': '?1',
-            'sec-ch-ua-platform': '"Android"',
-            'sec-fetch-dest': 'style',
-            'sec-fetch-mode': 'no-cors',
-            'sec-fetch-site': 'same-origin',
-        }
 
     ydl_opts = {
         'quiet': True,
         'no_warnings': True,
         'skip_download': True,
-        'user_agent': target_user_agent,
-        'http_headers': target_headers,
+        'noplaylist': True,
         'nocheckcertificate': True,
         'ignoreerrors': True,
         'format': 'bestvideo+bestaudio/best', # ইউটিউব এরর ফিক্স করার লজিক
     }
 
+    if target_user_agent:
+        ydl_opts['user_agent'] = target_user_agent
+    if target_headers:
+        ydl_opts['http_headers'] = target_headers
     if cookie_file:
         ydl_opts['cookiefile'] = cookie_file
 
