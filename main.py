@@ -6,8 +6,8 @@ import asyncio
 
 app = FastAPI()
 
-# --- এই নতুন রুটটি UptimeRobot-এর জন্য যোগ করা হয়েছে ---
-@app.get("/")
+# --- এই নতুন রুটটি UptimeRobot-এর জন্য যোগ করা হয়েছে ---
+@app.api_route("/", methods=["GET", "HEAD"])
 def read_root():
     return {
         "status": "Alive and kicking!", 
