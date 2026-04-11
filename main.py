@@ -65,7 +65,6 @@ def fetch_yt_data(url):
         'noplaylist': True,
         'nocheckcertificate': True,
         'ignoreerrors': True,
-        'format': 'bestvideo+bestaudio/best', # ইউটিউব এরর ফিক্স করার লজিক
     }
 
     if target_user_agent:
