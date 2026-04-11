@@ -65,7 +65,7 @@ def fetch_yt_data(url):
         'noplaylist': True,
         'nocheckcertificate': True,
         'ignoreerrors': True,
-        'format': None,
+        'format': 'all',
     }
 
     if target_user_agent:
