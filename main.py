@@ -72,6 +72,7 @@ def fetch_yt_data(url):
         }
     # ৩. ইউটিউবের জন্য
     else:
+        ydl_opts['proxy'] = 'http://XmSj6VQnDl70_custom_zone_MY_st__city_sid_61400871_time_5:2773363@change4.owlproxy.com:7778'
         cookie_file = 'youtube_cookies.txt'
 
     if target_user_agent:
@@ -89,8 +90,15 @@ def download_sync(url: str, dest: str):
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept': '*/*'
     }
+    proxies = None
+    if 'googlevideo.com' in url:
+        proxies = {
+            'http': 'http://XmSj6VQnDl70_custom_zone_MY_st__city_sid_61400871_time_5:2773363@change4.owlproxy.com:7778',
+            'https': 'http://XmSj6VQnDl70_custom_zone_MY_st__city_sid_61400871_time_5:2773363@change4.owlproxy.com:7778'
+        }
+        
     # stream=True ব্যবহার করা হচ্ছে যেন পুরো ফাইল RAM-এ লোড না হয়
-    with requests.get(url, headers=headers, stream=True, timeout=30) as r:
+    with requests.get(url, headers=headers, stream=True, timeout=60, proxies=proxies) as r:
         r.raise_for_status()
         with open(dest, 'wb') as f:
             for chunk in r.iter_content(chunk_size=1024*1024):
