@@ -2,15 +2,10 @@
 # https://curl.haxx.se/rfc/cookie_spec.html
 # This is a generated file! Do not edit.
 
-.instagram.com	TRUE	/	TRUE	1807105898	datr	aeemae2SEt2314GYCqTyzDKL
-.instagram.com	TRUE	/	TRUE	1804081898	ig_did	3517FC4E-C1FA-4ABC-B87F-69ADA65766FB
-.instagram.com	TRUE	/	TRUE	1807105898	mid	aabnaQALAAHK4xcD7a6-mi1F-MxY
-.instagram.com	TRUE	/	TRUE	1804082048	ig_nrcb	1
-.instagram.com	TRUE	/	TRUE	1807106077	ps_l	1
-.instagram.com	TRUE	/	TRUE	1807106077	ps_n	1
-.instagram.com	TRUE	/	TRUE	1773153177	dpr	1
-.instagram.com	TRUE	/	TRUE	1773156980	wd	1920x945
-.instagram.com	TRUE	/	TRUE	1807112177	csrftoken	SN5OavgPlNpvEZgEGB6kpDgVEP2SrTbF
-.instagram.com	TRUE	/	TRUE	1780328177	ds_user_id	75780667919
-.instagram.com	TRUE	/	TRUE	1804088173	sessionid	75780667919%3AS3yIGaWzCtGJ1F%3A24%3AAYifFW_bWjU_PNtJQdPGSAjb8_4Zru9W1qq3AFzqcA
-.instagram.com	TRUE	/	TRUE	0	rur	"VLL\05475780667919\0541804088176:01fe0394c7825774cabedf830d1e62ab9d3f2b7db5b44281e8d2480ada470d52069b9ab9"
+.facebook.com	TRUE	/	TRUE	1773157032	wd	1920x945
+.facebook.com	TRUE	/	FALSE	0	datr	BWviaNOCtN9lSil2CzLHh0vx
+.facebook.com	TRUE	/	FALSE	0	xs	36:oQdrOxiLjW_EZQ:2:1759668998:-1:-1
+.facebook.com	TRUE	/	FALSE	0	c_user	61572081986405
+.facebook.com	TRUE	/	FALSE	0	sb	btLkaATBU0dtRjOMmfvjY5Ap
+.facebook.com	TRUE	/	TRUE	1780328230	fr	0NgvCjjBbeQsxe8vI.AWdHNoGOe1tCK0OIRdOe1WdjoMa-8GUW740OhvDdFWB3ZC0TqSU.BpBg6D..AAA.0.0.BppwAl.AWd3ZNdtM0wjWOErymCC9FkWoPU
+.facebook.com	TRUE	/	TRUE	0	presence	C%7B%22t3%22%3A%5B%5D%2C%22utc3%22%3A1772552233376%2C%22v%22%3A1%7D
