@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
+from fastapi.middleware.cors import CORSMiddleware  # <-- CORS ইমপোর্ট করা হলো
 from fastapi.responses import FileResponse
 import yt_dlp
 import uvicorn
@@ -9,6 +10,16 @@ import uuid
 from urllib.parse import quote
 
 app = FastAPI()
+
+# --- CORS সেটিং যোগ করা হলো (যাতে যেকোনো ওয়েবসাইট থেকে এক্সেস করা যায়) ---
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # "*" মানে সব ওয়েবসাইট থেকে কল অ্যালাউ করবে
+    allow_credentials=True,
+    allow_methods=["*"],  # GET, POST ইত্যাদি সব মেথড অ্যালাউ করবে
+    allow_headers=["*"],  # সব ধরনের হেডার অ্যালাউ করবে
+)
+# ---------------------------------------------------------
 
 # --- এই নতুন রুটটি UptimeRobot-এর জন্য যোগ করা হয়েছে ---
 @app.api_route("/", methods=["GET", "HEAD"])
@@ -85,7 +96,7 @@ def fetch_yt_data(url):
         return ydl.extract_info(url, download=False)
 
 def download_sync(url: str, dest: str):
-    # stream=True ব্যবহার করা হচ্ছে যেন পুরো ফাইল RAM-এ লোড না হয়
+    # stream=True ব্যবহার করা হচ্ছে যেন পুরো ফাইল RAM-এ লোড না হয়
     with requests.get(url, stream=True, timeout=30) as r:
         r.raise_for_status()
         with open(dest, 'wb') as f:
@@ -118,7 +129,7 @@ async def merge_audio_video(video_url: str, audio_url: str, background_tasks: Ba
             download_async(audio_url, audio_path)
         )
 
-        # -c copy ব্যবহার করে প্রসেস করা ফলে CPU এবং RAM-এ চাপ পড়বে না
+        # -c copy ব্যবহার করে প্রসেস করা ফলে CPU এবং RAM-এ চাপ পড়বে না
         cmd = [
             "ffmpeg", "-y", 
             "-i", video_path, 
