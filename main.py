@@ -72,18 +72,30 @@ def fetch_yt_data(url):
         }
     # ৩. ইউটিউবের জন্য
     else:
-        ydl_opts['proxy'] = 'http://XmSj6VQnDl70_custom_zone_MY_st__city_sid_61400871_time_5:2773363@change4.owlproxy.com:7778'
-        cookie_file = None
+        proxy_url = 'http://XmSj6VQnDl70_custom_zone_MY_st__city_sid_61400871_time_5:2773363@change4.owlproxy.com:7778'
+        cookie_file = 'youtube_cookies.txt'
+        ydl_opts['proxy'] = proxy_url
 
-    if target_user_agent:
-        ydl_opts['user_agent'] = target_user_agent
-    if target_headers:
-        ydl_opts['http_headers'] = target_headers
-    if cookie_file:
-        ydl_opts['cookiefile'] = cookie_file
+        if target_user_agent:
+            ydl_opts['user_agent'] = target_user_agent
+        if target_headers:
+            ydl_opts['http_headers'] = target_headers
 
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        return ydl.extract_info(url, download=False)
+        # Attempt 1: প্রক্সি (বিনা কুকিতে)
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(url, download=False)
+                if info and len(info.get('formats', [])) > 0:
+                    return info
+        except Exception:
+            pass # প্রথমবার ফেইল করলে (যেমন Bot Check), নিচের ব্লকে কুকি ব্যবহার করবে
+
+        # Attempt 2: প্রক্সি + কুকি (Bot bypass বা 18+ এর জন্য)
+        if os.path.exists(cookie_file):
+            ydl_opts['cookiefile'] = cookie_file
+            
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            return ydl.extract_info(url, download=False)
 
 def download_sync(url: str, dest: str):
     headers = {
