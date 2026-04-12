@@ -73,7 +73,7 @@ def fetch_yt_data(url):
     # ৩. ইউটিউবের জন্য
     else:
         ydl_opts['proxy'] = 'http://XmSj6VQnDl70_custom_zone_MY_st__city_sid_61400871_time_5:2773363@change4.owlproxy.com:7778'
-        cookie_file = 'youtube_cookies.txt'
+        cookie_file = None
 
     if target_user_agent:
         ydl_opts['user_agent'] = target_user_agent
