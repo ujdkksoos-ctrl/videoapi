@@ -81,16 +81,7 @@ def fetch_yt_data(url):
         if target_headers:
             ydl_opts['http_headers'] = target_headers
 
-        # Attempt 1: প্রক্সি (বিনা কুকিতে)
-        try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=False)
-                if info and len(info.get('formats', [])) > 0:
-                    return info
-        except Exception:
-            pass # প্রথমবার ফেইল করলে (যেমন Bot Check), নিচের ব্লকে কুকি ব্যবহার করবে
-
-        # Attempt 2: প্রক্সি + কুকি (Bot bypass বা 18+ এর জন্য)
+        # 100% কুকি ফোর্স করে ব্যবহার করা হচ্ছে ইউজারের নির্দেশ অনুযায়ী
         if os.path.exists(cookie_file):
             ydl_opts['cookiefile'] = cookie_file
             
